@@ -2,7 +2,7 @@
   <name>laserscan_to_pointcloud</name>
   <version>0.0.0</version>
   <description>laserscan_to_pointcloud</description>
-
+<maintainer email="bygreencn@gmail.com">Libin Sui</maintainer>
   <license>BSD</license>
 
   <url type="website">http://ros.org/wiki/hector_laserscan_to_pointcloud</url>
