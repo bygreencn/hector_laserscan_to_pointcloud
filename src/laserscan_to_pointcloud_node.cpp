@@ -42,17 +42,19 @@ public:
   {
     ros::NodeHandle nh_;
 
-    scan_sub_ = nh_.subscribe("scan", 10, &LaserscanToPointcloud::scanCallback, this);
-    point_cloud2_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("scan_cloud",10,false);
-
-
     ros::NodeHandle pnh_("~");
     pnh_.param("max_range", p_max_range_, 29.0);
     pnh_.param("min_range", p_min_range_, 0.0);
+    pnh_.param("use_high_fidelity_projection", p_use_high_fidelity_projection_, false);
+    pnh_.param("scan_topic", p_scan_topic_, std::string("tilt_scan"));
+    pnh_.param("cloud_topic", p_cloud_topic_, std::string("tilt_pointcloud2"));
+    pnh_.param("target_frame", p_target_frame_, std::string("NO_TARGET_FRAME_SPECIFIED"));
+
+    scan_sub_ = nh_.subscribe(p_scan_topic_, 10, &LaserscanToPointcloud::scanCallback, this);
+    point_cloud2_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(p_cloud_topic_,10,false);
 
     filter_chain_.configure("scan_filter_chain", pnh_);
 
-    pnh_.param("use_high_fidelity_projection", p_use_high_fidelity_projection_, false);
 
     if (p_use_high_fidelity_projection_){
       pnh_.param("target_frame", p_target_frame_, std::string("NO_TARGET_FRAME_SPECIFIED"));
@@ -103,14 +105,14 @@ public:
 
       if(tfl_->waitForTransform(p_target_frame_, scan_in->header.frame_id, scan_in->header.stamp, wait_duration_) &&
          tfl_->waitForTransform(p_target_frame_, scan_in->header.frame_id, end_time, wait_duration_)){
-        projector_.transformLaserScanToPointCloud(p_target_frame_, *scan_to_convert, cloud2_, *tfl_, p_max_range_, laser_geometry::channel_option::Intensity);
+        projector_.transformLaserScanToPointCloud(p_target_frame_, *scan_to_convert, cloud2_, *tfl_, p_max_range_, laser_geometry::channel_option::Default);
       }else{
         ROS_WARN("Timed out waiting for transform between %s and %s for %f seconds. Unable to transform laser scan.",p_target_frame_.c_str(), scan_in->header.frame_id.c_str(), wait_duration_.toSec());
         return;
       }
 
     }else{
-      projector_.projectLaser(*scan_to_convert, cloud2_, p_max_range_, laser_geometry::channel_option::Intensity);
+      projector_.projectLaser(*scan_to_convert, cloud2_, p_max_range_, laser_geometry::channel_option::Default);
     }
 
     if (cloud2_.data.size() > 0){
@@ -128,7 +130,10 @@ protected:
   double p_max_range_;
   double p_min_range_;
   bool p_use_high_fidelity_projection_;
+  
   std::string p_target_frame_;
+  std::string p_scan_topic_;
+  std::string p_cloud_topic_;
 
   laser_geometry::LaserProjection projector_;
 
@@ -142,7 +147,7 @@ protected:
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "hector_laserscan_to_pointcloud_node");
+  ros::init(argc, argv, "laserscan_to_pointcloud_node");
 
   LaserscanToPointcloud ls;
 
