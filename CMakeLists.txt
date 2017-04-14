@@ -1,6 +1,6 @@
 # http://ros.org/doc/groovy/api/catkin/html/user_guide/supposed.html
 cmake_minimum_required(VERSION 2.8.3)
-project(hector_laserscan_to_pointcloud)
+project(laserscan_to_pointcloud)
 
 # Load catkin and all dependencies required for this package
 # TODO: remove all from COMPONENTS that are not catkin packages.
@@ -34,3 +34,11 @@ add_executable(laserscan_to_pointcloud_node src/laserscan_to_pointcloud_node.cpp
 target_link_libraries(laserscan_to_pointcloud_node ${Boost_LIBRARIES} ${catkin_LIBRARIES} )
 add_dependencies(laserscan_to_pointcloud_node ${catkin_EXPORTED_TARGETS})
 
+## Mark other files for installation (e.g. launch and bag files, etc.)
+install(DIRECTORY launch config
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(TARGETS laserscan_to_pointcloud_node
+        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

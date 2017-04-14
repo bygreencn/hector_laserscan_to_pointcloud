@@ -2,7 +2,7 @@
 \mainpage
 \htmlinclude manifest.html
 
-\b hector_laserscan_to_pointcloud
+\b laserscan_to_pointcloud
 
 <!-- 
 Converts laser scans to pointclouds. Allows using high fidelity projection and filtering out shadow/veiling points.

@@ -42,17 +42,19 @@ public:
   {
     ros::NodeHandle nh_;
 
-    scan_sub_ = nh_.subscribe("scan", 10, &LaserscanToPointcloud::scanCallback, this);
-    point_cloud2_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("scan_cloud",10,false);
-
-
     ros::NodeHandle pnh_("~");
     pnh_.param("max_range", p_max_range_, 29.0);
     pnh_.param("min_range", p_min_range_, 0.0);
+    pnh_.param("use_high_fidelity_projection", p_use_high_fidelity_projection_, false);
+    pnh_.param("scan_topic", p_scan_topic_, std::string("tilt_scan"));
+    pnh_.param("cloud_topic", p_cloud_topic_, std::string("tilt_pointcloud2"));
+    pnh_.param("target_frame", p_target_frame_, std::string("NO_TARGET_FRAME_SPECIFIED"));
+
+    scan_sub_ = nh_.subscribe(p_scan_topic_, 10, &LaserscanToPointcloud::scanCallback, this);
+    point_cloud2_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(p_cloud_topic_,10,false);
 
     filter_chain_.configure("scan_filter_chain", pnh_);
 
-    pnh_.param("use_high_fidelity_projection", p_use_high_fidelity_projection_, false);
 
     if (p_use_high_fidelity_projection_){
       pnh_.param("target_frame", p_target_frame_, std::string("NO_TARGET_FRAME_SPECIFIED"));
@@ -128,7 +130,10 @@ protected:
   double p_max_range_;
   double p_min_range_;
   bool p_use_high_fidelity_projection_;
+  
   std::string p_target_frame_;
+  std::string p_scan_topic_;
+  std::string p_cloud_topic_;
 
   laser_geometry::LaserProjection projector_;
 
@@ -142,7 +147,7 @@ protected:
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "hector_laserscan_to_pointcloud_node");
+  ros::init(argc, argv, "laserscan_to_pointcloud_node");
 
   LaserscanToPointcloud ls;
 

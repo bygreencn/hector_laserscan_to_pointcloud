@@ -1,16 +1,25 @@
 <?xml version="1.0"?>
 
 <launch>
-  
+  <node pkg="urg_node" type="urg_node" name="hokuyo_UTM_30LX_h" output="screen">
+    <param name="ip_address" value="192.168.20.10"/>
+    <param name="frame_id" value="base_link"/>
+    <param name="calibrate_time" type="bool" value="false"/>  
+    <param name="intensity" type="bool" value="false"/>
+    <param name="cluster" value="1"/>
+    <param name="publish_intensity" value = "false"/>
+    <param name="publish_multiecho" value = "false"/>
+    <remap from="scan" to="scan" /> 
+  </node> 
   <!--
     Convert laser scan to 3D point cloud into fixed frame not rotating along with sensor.
     Also performs scan shadow point filtering
   -->
-  <node pkg="hector_laserscan_to_pointcloud" type="laserscan_to_pointcloud_node" name="scan_to_ptcld" respawn="true">
+  <node pkg="laserscan_to_pointcloud" type="laserscan_to_pointcloud_node" name="scan_to_ptcld" respawn="true">
     <param name="min_range" value="0.05" />
-    <param name="use_high_fidelity_projection" value="true" />
-    <param name="target_frame" value="pre_spindle" />
-    <rosparam command="load" file="$(find hector_laserscan_to_pointcloud)/config/default_scan_shadow_filter.yaml" />
+    <param name="use_high_fidelity_projection" value="false" />
+    <param name="target_frame" value="cloud_link" />
+    <rosparam command="load" file="$(find laserscan_to_pointcloud)/config/default_scan_shadow_filter.yaml" />
   </node>
 
 </launch>
